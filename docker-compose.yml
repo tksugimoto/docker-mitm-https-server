@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  https-server:
+    build:
+      context: ./https-server/
+      args:
+        http_proxy:
+        https_proxy:
+    volumes:
+      - ./.generated:/root/.generated
+    environment:
+      TZ:
+      https_proxy:
+      TARGET_DOMAINS:
+    ports:
+      - "${FORWARDING_SERVER_BIND_IP:-127.9.9.9}:443:443"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "3"
