@@ -27,7 +27,7 @@ openssl genrsa \
 openssl req \
     -new \
     -key ${server_private_key_path} \
-    -subj "/" \
+    -subj "/O=MITM HTTPS SERVER" \
 | openssl x509 \
     -req \
     -CAkey ${root_private_key_path} \
