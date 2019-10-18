@@ -52,6 +52,7 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             log(`forward request to ${hostname}`);
 
             proxyServerSocket.write(`CONNECT ${hostname}:${HTTPS_PORT} HTTP/1.0${CRLF}`);
+            proxyServerSocket.write(`Host: ${hostname}:${HTTPS_PORT}${CRLF}`);
             if (httpsProxyAuth) {
                 proxyServerSocket.write(`Proxy-Authorization: Basic ${Buffer.from(httpsProxyAuth).toString('base64')}${CRLF}`);
             }
