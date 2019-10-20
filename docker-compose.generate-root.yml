@@ -11,3 +11,4 @@ services:
       - ./.generated:/root/.generated
     environment:
       ROOT_CERT_COMMON_NAME:
+      ROOT_CERT_LIFETIME_DAYS:

@@ -16,4 +16,5 @@ openssl req \
     -key $root_private_key_path \
     -subj "/CN=${ROOT_CERT_COMMON_NAME:-Private CA}" \
     -x509 \
+    -days ${ROOT_CERT_LIFETIME_DAYS:-30} \
     -out $root_cert_path \
