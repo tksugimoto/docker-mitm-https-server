@@ -36,6 +36,8 @@ const tlsServer = tls.createServer({
     cert: fs.readFileSync(`${process.env.server_key_dir}/server.crt`),
 });
 
+const rootCertificate = fs.readFileSync(`./.provided-root-ca/${process.env.root_cert_file_name}`);
+
 tlsServer.on('secureConnection', (clientTlsSocket) => {
     clientTlsSocket.once('data', dataBuffer => {
         const httpRequestArray = dataBuffer.toString().split(CRLF);
@@ -71,6 +73,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                     socket: proxyServerSocket,
                     servername: hostname,
                     rejectUnauthorized: true,
+                    secureContext: tls.createSecureContext({
+                        ca: rootCertificate,
+                    }),
                 };
                 const socket = tls.connect(options);
                 socket.once('secureConnect', () => {
