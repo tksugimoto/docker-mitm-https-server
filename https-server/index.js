@@ -76,8 +76,10 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 };
                 if (rootCertificate) {
                     log('provided-root-ca used');
+                    const rootCertificates = Array.from(tls.rootCertificates);
+                    rootCertificates.push(rootCertificate);
                     options.secureContext = tls.createSecureContext({
-                        ca: rootCertificate,
+                        ca: rootCertificates,
                     });
                 }
                 const socket = tls.connect(options);
