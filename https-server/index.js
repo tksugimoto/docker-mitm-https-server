@@ -108,6 +108,7 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             });
             proxyServerSocket.on('close', () => {
                 log('Proxy Server Socket close');
+                clientTlsSocket.end();
             });
         });
     });
