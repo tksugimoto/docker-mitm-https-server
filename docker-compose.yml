@@ -9,6 +9,7 @@ services:
         https_proxy:
     volumes:
       - ./.generated:/root/.generated
+      - ./.provided-root-ca:/root/.provided-root-ca
     env_file: ./.env
     ports:
       - "${FORWARDING_SERVER_BIND_IP:-127.9.9.9}:443:443"
