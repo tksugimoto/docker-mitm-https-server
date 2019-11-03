@@ -87,21 +87,13 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 };
                 const socket = tls.connect(options);
                 socket.once('secureConnect', () => {
-                    log(`TLS Socket secureConnect: authorized: ${socket.authorized}`);
-
                     socket.write(dataBuffer);
                     clientTlsSocket.pipe(socket);
                     socket.pipe(clientTlsSocket);
                 });
-                socket.on('connect', () => {
-                    log('TLS Socket connect');
-                });
                 socket.on('error', err => {
                     log(`TLS Socket error: ${err.message}`);
                     console.error(err);
-                });
-                socket.on('close', () => {
-                    log('TLS Socket close');
                 });
             });
             proxyServerSocket.on('error', err => {
@@ -110,7 +102,6 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 clientTlsSocket.end();
             });
             proxyServerSocket.on('close', () => {
-                log('Proxy Server Socket close');
                 clientTlsSocket.end();
             });
         });
