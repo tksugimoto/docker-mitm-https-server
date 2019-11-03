@@ -47,6 +47,7 @@ if (process.env.root_cert_file_name) {
 }
 
 tlsServer.on('secureConnection', (clientTlsSocket) => {
+    // HTTPリクエストを受け取ってから接続しないと、クライアント側の証明書検証で切断されてもプロキシサーバーへ接続してしまう
     clientTlsSocket.once('data', dataBuffer => {
         const hostname = clientTlsSocket.servername;
         if (!hostname) {
