@@ -30,7 +30,7 @@
 1. `Clientアプリ` - `MITM HTTPS Server` 間でTLS接続が成功
     - ※ 事前に `MITM HTTPS Server` のROOT証明書を信頼するようにしておく
 1. `MITM HTTPS Server` はプロキシが処理可能なリクエストに変換してからプロキシサーバーへリクエスト
-    - Host Header から実際の接続先FQDNを取得しプロキシサーバーへCONNECTリクエスト
+    - TLS Handshake の 拡張 (Server Name Indication) から実際の接続先FQDNを取得しプロキシサーバーへCONNECTリクエスト
 1. プロキシサーバーが代理で `外部 HTTPS Server` とTCP接続
 1. `MITM HTTPS Server` - `外部 HTTPS Server` 間でTLS接続が成功
     - ※ 事前に `MITM HTTPS Server` 内でのみ `外部 HTTPS Server` のROOT証明書を信頼するようにしておく
@@ -93,6 +93,6 @@
 - FQDN（≒ドメイン名）での通信であること
     - IPアドレスでの通信は名前解決がされなく通信に割り込めないため非対応
 - リクエスト中に元のリクエスト先FQDNが含まれていること
-    - Host ヘッダーが存在すること
+    - クライアントが Server Name Indication に対応していること
 - ポート番号はプロトコルのデフォルトであること
     - HTTPS リクエスト: `443`
