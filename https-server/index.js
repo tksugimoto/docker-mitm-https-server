@@ -72,7 +72,7 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 const statusLine = response.split(CRLF)[0];
                 const [/* version */, statusCode] = statusLine.split(' ');
                 if (statusCode !== '200') {
-                    console.error(statusLine);
+                    log(`Failed to relay on proxy server: ${hostname} (${statusLine})`);
                     clientTlsSocket.end();
                     return;
                 }
