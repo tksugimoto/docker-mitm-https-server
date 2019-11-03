@@ -20,11 +20,11 @@ const HTTPS_PORT = 443;
 
 const currentTime = () => {
     const date = new Date();
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const s = date.getSeconds();
-    const ms = date.getMilliseconds();
-    return `${h}:${m}:${s}.${ms}`;
+    const HH = date.getHours().toString().padStart(2, '0');
+    const mm = date.getMinutes().toString().padStart(2, '0');
+    const ss = date.getSeconds().toString().padStart(2, '0');
+    const sss = date.getMilliseconds().toString().padStart(3, '0');
+    return `${HH}:${mm}:${ss}.${sss}`;
 };
 
 const log = text => {
