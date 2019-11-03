@@ -47,57 +47,61 @@ if (process.env.root_cert_file_name) {
 }
 
 tlsServer.on('secureConnection', (clientTlsSocket) => {
-    const hostname = clientTlsSocket.servername;
-    if (!hostname) {
-        log('Request error: Request does not support Server Name Indication');
-        clientTlsSocket.end();
-        return;
-    }
-    const proxyServerSocket = net.createConnection(httpsProxyPort, httpsProxyHost);
-    proxyServerSocket.once('connect', () => {
-        log(`forward request to ${hostname}`);
-
-        proxyServerSocket.write(`CONNECT ${hostname}:${HTTPS_PORT} HTTP/1.0${CRLF}`);
-        proxyServerSocket.write(`Host: ${hostname}:${HTTPS_PORT}${CRLF}`);
-        if (httpsProxyAuth) {
-            proxyServerSocket.write(`Proxy-Authorization: Basic ${Buffer.from(httpsProxyAuth).toString('base64')}${CRLF}`);
+    clientTlsSocket.once('data', dataBuffer => {
+        const hostname = clientTlsSocket.servername;
+        if (!hostname) {
+            log('Request error: Request does not support Server Name Indication');
+            clientTlsSocket.end();
+            return;
         }
-        proxyServerSocket.write(CRLF);
-        proxyServerSocket.once('data', data => {
-            const response = data.toString();
-            const statusLine = response.split(CRLF)[0];
-            const [/* version */, statusCode] = statusLine.split(' ');
-            if (statusCode !== '200') {
-                log(`Failed to relay on proxy server: ${hostname} (${statusLine})`);
-                clientTlsSocket.end();
-                return;
-            }
 
-            const options = {
-                socket: proxyServerSocket,
-                servername: hostname,
-                rejectUnauthorized: true,
-                secureContext :tls.createSecureContext({
-                    ca: rootCertificates,
-                }),
-            };
-            const socket = tls.connect(options);
-            socket.once('secureConnect', () => {
-                clientTlsSocket.pipe(socket);
-                socket.pipe(clientTlsSocket);
+        const proxyServerSocket = net.createConnection(httpsProxyPort, httpsProxyHost);
+        proxyServerSocket.once('connect', () => {
+            log(`forward request to ${hostname}`);
+
+            proxyServerSocket.write(`CONNECT ${hostname}:${HTTPS_PORT} HTTP/1.0${CRLF}`);
+            proxyServerSocket.write(`Host: ${hostname}:${HTTPS_PORT}${CRLF}`);
+            if (httpsProxyAuth) {
+                proxyServerSocket.write(`Proxy-Authorization: Basic ${Buffer.from(httpsProxyAuth).toString('base64')}${CRLF}`);
+            }
+            proxyServerSocket.write(CRLF);
+            proxyServerSocket.once('data', data => {
+                const response = data.toString();
+                const statusLine = response.split(CRLF)[0];
+                const [/* version */, statusCode] = statusLine.split(' ');
+                if (statusCode !== '200') {
+                    log(`Failed to relay on proxy server: ${hostname} (${statusLine})`);
+                    clientTlsSocket.end();
+                    return;
+                }
+
+                const options = {
+                    socket: proxyServerSocket,
+                    servername: hostname,
+                    rejectUnauthorized: true,
+                    secureContext :tls.createSecureContext({
+                        ca: rootCertificates,
+                    }),
+                };
+                const socket = tls.connect(options);
+                socket.once('secureConnect', () => {
+                    socket.write(dataBuffer);
+                    clientTlsSocket.pipe(socket);
+                    socket.pipe(clientTlsSocket);
+                });
+                socket.on('error', err => {
+                    log(`TLS Socket error: ${err.message}`);
+                    console.error(err);
+                });
             });
-            socket.on('error', err => {
-                log(`TLS Socket error: ${err.message}`);
+            proxyServerSocket.on('error', err => {
+                log(`Proxy Server Socket error: ${err.message}`);
                 console.error(err);
+                clientTlsSocket.end();
             });
-        });
-        proxyServerSocket.on('error', err => {
-            log(`Proxy Server Socket error: ${err.message}`);
-            console.error(err);
-            clientTlsSocket.end();
-        });
-        proxyServerSocket.on('close', () => {
-            clientTlsSocket.end();
+            proxyServerSocket.on('close', () => {
+                clientTlsSocket.end();
+            });
         });
     });
     clientTlsSocket.on('error', err => {
