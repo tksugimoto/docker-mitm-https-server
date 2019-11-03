@@ -48,17 +48,15 @@ if (process.env.root_cert_file_name) {
 
 tlsServer.on('secureConnection', (clientTlsSocket) => {
     clientTlsSocket.once('data', dataBuffer => {
-        const httpRequestArray = dataBuffer.toString().split(CRLF);
-        const hostHeader = httpRequestArray.find(header => header.startsWith('Host:'));
-        if (!hostHeader) {
-            log('Request error: Host header not found');
+        const hostname = clientTlsSocket.servername;
+        if (!hostname) {
+            log('Request error: Request does not support Server Name Indication');
             clientTlsSocket.end();
             return;
         }
 
         const proxyServerSocket = net.createConnection(httpsProxyPort, httpsProxyHost);
         proxyServerSocket.once('connect', () => {
-            const hostname = hostHeader.slice('Host:'.length).trim().replace(/:.*/, '');
             log(`forward request to ${hostname}`);
 
             proxyServerSocket.write(`CONNECT ${hostname}:${HTTPS_PORT} HTTP/1.0${CRLF}`);
