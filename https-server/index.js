@@ -20,15 +20,18 @@ const HTTPS_PORT = 443;
 
 const currentTime = () => {
     const date = new Date();
-    const h = date.getHours();
-    const m = date.getMinutes();
-    const s = date.getSeconds();
-    const ms = date.getMilliseconds();
-    return `${h}:${m}:${s}.${ms}`;
+    const YYYY = date.getFullYear();
+    const MM = (date.getMonth() + 1).toString().padStart(2, '0');
+    const DD = date.getDate().toString().padStart(2, '0');
+    const HH = date.getHours().toString().padStart(2, '0');
+    const mm = date.getMinutes().toString().padStart(2, '0');
+    const ss = date.getSeconds().toString().padStart(2, '0');
+    const sss = date.getMilliseconds().toString().padStart(3, '0');
+    return `${YYYY}/${MM}/${DD} ${HH}:${mm}:${ss}.${sss}`;
 };
 
 const log = text => {
-    console.info(`[${currentTime()}] ------------- ${text} -------------`);
+    console.info(`[${currentTime()}] ${text}`);
 };
 
 const tlsServer = tls.createServer({
@@ -69,7 +72,7 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 const statusLine = response.split(CRLF)[0];
                 const [/* version */, statusCode] = statusLine.split(' ');
                 if (statusCode !== '200') {
-                    console.error(statusLine);
+                    log(`Failed to relay on proxy server: ${hostname} (${statusLine})`);
                     clientTlsSocket.end();
                     return;
                 }
@@ -84,21 +87,13 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 };
                 const socket = tls.connect(options);
                 socket.once('secureConnect', () => {
-                    log(`TLS Socket secureConnect: authorized: ${socket.authorized}`);
-
                     socket.write(dataBuffer);
                     clientTlsSocket.pipe(socket);
                     socket.pipe(clientTlsSocket);
                 });
-                socket.on('connect', () => {
-                    log('TLS Socket connect');
-                });
                 socket.on('error', err => {
                     log(`TLS Socket error: ${err.message}`);
                     console.error(err);
-                });
-                socket.on('close', () => {
-                    log('TLS Socket close');
                 });
             });
             proxyServerSocket.on('error', err => {
@@ -107,7 +102,6 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 clientTlsSocket.end();
             });
             proxyServerSocket.on('close', () => {
-                log('Proxy Server Socket close');
                 clientTlsSocket.end();
             });
         });
