@@ -28,7 +28,7 @@ const currentTime = () => {
 };
 
 const log = text => {
-    console.info(`[${currentTime()}] ------------- ${text} -------------`);
+    console.info(`[${currentTime()}] ${text}`);
 };
 
 const tlsServer = tls.createServer({
