@@ -27,6 +27,8 @@ export COMPOSE_FILE="docker-compose.generate-root.yml,docker-compose.yml"
 
 docker-compose build root-ca
 
+rm ./.generated/*
+
 docker-compose run --rm root-ca
 
 # root.crt の生成確認
