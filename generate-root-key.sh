@@ -22,11 +22,12 @@ export ROOT_CERT_COMMON_NAME=$1
 # 第二引数を渡した場合、ROOT証明書の「有効期限」を変更できる (単位: 日)
 export ROOT_CERT_LIFETIME_DAYS=$2
 
-export COMPOSE_FILE="docker-compose.generate-root.yml"
+export COMPOSE_PATH_SEPARATOR=","
+export COMPOSE_FILE="docker-compose.generate-root.yml,docker-compose.yml"
 
-docker-compose build
+docker-compose build root-ca
 
 docker-compose run --rm root-ca
 
-# root.crt, root-key.pem の生成確認
+# root.crt の生成確認
 ls -l ./.generated/
