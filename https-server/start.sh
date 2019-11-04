@@ -3,9 +3,10 @@ set -ex
 
 : Environment variable "TARGET_DOMAINS": ${TARGET_DOMAINS:?is not defined}
 
-readonly root_key_dir=./.generated
+readonly root_key_dir=./.root-key
+readonly root_cert_dir=./.generated
 readonly root_private_key_path=${root_key_dir}/root-key.pem
-readonly root_cert_path=${root_key_dir}/root.crt
+readonly root_cert_path=${root_cert_dir}/root.crt
 readonly root_serial_path=${root_key_dir}/root.srl
 
 export server_key_dir=./.keys
