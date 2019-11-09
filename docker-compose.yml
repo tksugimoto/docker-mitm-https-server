@@ -21,5 +21,22 @@ services:
         max-size: "10mb"
         max-file: "3"
 
+  http-proxy-server:
+    build:
+      context: ./http-proxy-server/
+      args:
+        http_proxy:
+        https_proxy:
+    env_file: ./.env
+    ports:
+      - "${HTTP_PROXY_SERVER_BIND_IP_PORT:-127.0.0.1:3128}:3128"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "3"
+
+
 volumes:
   root_key:
