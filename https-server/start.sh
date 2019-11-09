@@ -1,6 +1,9 @@
 #!/bin/sh
 set -ex
 
+# TARGET_IP 宛のリクエストを受け付けられるようにする
+ifconfig eth0:1 ${TARGET_IP};
+
 : Environment variable "TARGET_DOMAINS": ${TARGET_DOMAINS:?is not defined}
 
 readonly root_key_dir=./.root-key
@@ -18,7 +21,7 @@ readonly server_san_path=${server_key_dir}/server_san.txt
 
 
 # ", " が末尾についてしまうため、ダミードメインを最後に足す
-echo "subjectAltName = $(printf -- "DNS:%s, " ${TARGET_DOMAINS}) DNS:_dummy_.example.com" > ${server_san_path}
+echo "subjectAltName = IP: ${TARGET_IP}, $(printf -- "DNS:%s, " ${TARGET_DOMAINS}) DNS:_dummy_.example.com" > ${server_san_path}
 
 # 秘密鍵の生成
 openssl genrsa \
