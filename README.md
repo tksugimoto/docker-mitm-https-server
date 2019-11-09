@@ -78,6 +78,8 @@
         ```
         C:\Windows\System32\drivers\etc
         ```
+        - ※ Windowsの場合、1行のエイリアスの最大数は `8` である点に注意
+            - 参考: [HOSTS ファイルにおけるエイリアス名の最大数について](https://support.microsoft.com/ja-jp/help/2717022)
 1. 対象ドメインをプロキシの例外に追加（プロキシサーバーを使わないようにする）
     - ローカルの hosts を使用して名前解決されるようにしてDockerコンテナ内の `MITM HTTPS Server` にリクエストが飛ぶようにする必要があるため
 1. `MITM HTTPS Server` を起動
