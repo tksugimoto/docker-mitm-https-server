@@ -5,12 +5,24 @@ route add -host ${TARGET_IP} gw $(dig +short ${FORWARDING_CONTAINER}) eth0
 
 route -n
 
+# ログを標準出力に出すために必要
+chmod o+w /dev/stdout
+
 echo Generate squid.conf
 echo ========================
 
 cat <<- EOS | tee ./squid.conf
-	# route設定のためにuserを変更したためログを標準出力に出せない
-	access_log none
+	# logformat
+	# tl: Local time
+	# >a: Client source IP address
+	# un: User name (any available)
+	# >Hs: HTTP status code sent to the client
+	# rm: Request method (GET/POST etc)
+	# ru: Request URL received (or computed) and sanitized
+	# rv: Request protocol version
+	# >h: Original received request header
+	logformat custom   [%{%Y/%m/%d %H:%M:%S %z}tl] %>a %[un [%>Hs] "%rm %ru HTTP/%rv" "%{User-Agent}>h"
+	access_log stdio:/dev/stdout custom
 
 	http_port 3128
 
