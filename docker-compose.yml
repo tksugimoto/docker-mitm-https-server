@@ -7,8 +7,6 @@ services:
       args:
         http_proxy:
         https_proxy:
-    cap_add:
-      - NET_ADMIN
     volumes:
       - root_key:/root/.root-key
       - ./.generated:/root/.generated
@@ -31,8 +29,6 @@ services:
         https_proxy:
     depends_on:
       - https-server
-    cap_add:
-      - NET_ADMIN
     environment:
       FORWARDING_CONTAINER: "https-server"
     env_file: ./.env

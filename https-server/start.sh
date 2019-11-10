@@ -1,9 +1,6 @@
 #!/bin/sh
 set -ex
 
-# TARGET_IP 宛のリクエストを受け付けられるようにする
-ifconfig eth0:1 ${TARGET_IP};
-
 : Environment variable "TARGET_DOMAINS": ${TARGET_DOMAINS:?is not defined}
 
 readonly root_key_dir=./.root-key

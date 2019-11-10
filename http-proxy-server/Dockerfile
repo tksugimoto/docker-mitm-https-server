@@ -1,17 +1,15 @@
-FROM alpine:3.10
+FROM node:12.13-alpine
 
-RUN apk add --update-cache --no-cache 'squid<5'
+RUN apk add --update-cache --no-cache tini
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # TZ環境変数でタイムゾーンを変更できるようにするため
 RUN apk add --update-cache --no-cache tzdata
 
-# dig コマンド
-RUN apk add --update-cache --no-cache bind-tools
+WORKDIR /root/
 
-WORKDIR /workdir
-RUN chown squid:squid ./
+CMD ["node", "index.js"]
 
-CMD ["./start-proxy.sh"]
-
-COPY --chown=squid:squid ./start-proxy.sh ./
-RUN chmod 744 ./start-proxy.sh
+COPY [ \
+    "index.js", \
+    "./"]
