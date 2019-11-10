@@ -6,7 +6,7 @@ RUN apk add --update-cache --no-cache tini
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # TZ環境変数でタイムゾーンを変更できるようにするため
-RUN apk --update --no-cache add tzdata
+RUN apk add --update-cache --no-cache tzdata
 
 WORKDIR /root/
 
