@@ -27,7 +27,7 @@ export COMPOSE_FILE="docker-compose.generate-root.yml,docker-compose.yml"
 
 docker-compose build root-ca
 
-rm --force ./.generated/*
+rm -f ./.generated/*
 
 docker-compose run --rm root-ca
 
