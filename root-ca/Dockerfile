@@ -6,4 +6,6 @@ WORKDIR /root/
 
 COPY ./docker-entrypoint.sh ./
 
+RUN chmod u+x ./docker-entrypoint.sh
+
 ENTRYPOINT ["./docker-entrypoint.sh"]

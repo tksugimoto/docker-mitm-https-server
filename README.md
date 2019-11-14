@@ -44,7 +44,7 @@
 1. [docker, docker-compose をインストール](https://docs.docker.com/install/#supported-platforms)
 1. ROOT証明書を作成
     ```sh
-    ./generate-root-key.sh
+    sh generate-root-key.sh
     ```
     - 引数1: `ROOT_CERT_COMMON_NAME`
         - ROOT証明書の「発行先」・「発行者」

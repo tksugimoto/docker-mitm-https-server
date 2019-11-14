@@ -16,3 +16,5 @@ COPY [ \
     "index.js", \
     "start.sh", \
     "./"]
+
+RUN chmod u+x ./start.sh
