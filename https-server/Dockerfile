@@ -1,7 +1,5 @@
 FROM node:12.13-alpine
 
-RUN apk add --update-cache --no-cache openssl
-
 RUN apk add --update-cache --no-cache tini
 ENTRYPOINT ["/sbin/tini", "--"]
 
@@ -9,6 +7,8 @@ ENTRYPOINT ["/sbin/tini", "--"]
 RUN apk add --update-cache --no-cache tzdata
 
 WORKDIR /root/
+
+RUN apk add --update-cache --no-cache openssl
 
 CMD ["./start.sh"]
 
