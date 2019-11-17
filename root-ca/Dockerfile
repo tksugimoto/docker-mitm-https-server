@@ -4,8 +4,8 @@ RUN apk add --update-cache --no-cache openssl
 
 WORKDIR /root/
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
 COPY ./docker-entrypoint.sh ./
 
 RUN chmod u+x ./docker-entrypoint.sh
-
-ENTRYPOINT ["./docker-entrypoint.sh"]
