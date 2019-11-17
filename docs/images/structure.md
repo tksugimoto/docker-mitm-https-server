@@ -5,6 +5,7 @@ graph LR
         local_root_cert{{自作ROOT証明書}}
         subgraph Docker
             local_mitm_server[MITM HTTPS Server]
+            local_proxy[Local Proxy Server]
         end
     end
     subgraph DMZ
@@ -14,6 +15,9 @@ graph LR
         external_root_cert{{オレオレROOT証明書}}
         external_server[外部 HTTPS Server]
     end
+
+    client -->|CONNECT, TLS| local_proxy
+    local_proxy --> local_mitm_server
 
     client -->|TLS| local_mitm_server
     client -.-|信頼| local_root_cert
