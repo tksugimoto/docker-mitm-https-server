@@ -132,6 +132,17 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 socket.write(dataBuffer);
                 clientTlsSocket.pipe(socket);
                 socket.pipe(clientTlsSocket);
+
+                console.info(dataBuffer.toString());
+                clientTlsSocket.on('data', () => {
+                    log(`client -> server (${hostname})`);
+                });
+                clientTlsSocket.pipe(process.stdout);
+
+                socket.on('data', () => {
+                    log(`server -> client (${hostname})`);
+                });
+                socket.pipe(process.stdout);
             });
             socket.on('error', err => {
                 log(`TLS Socket error: ${err.message}`);
