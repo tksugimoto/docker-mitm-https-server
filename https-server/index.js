@@ -49,6 +49,9 @@ if (process.env.root_cert_file_name) {
 tlsServer.on('secureConnection', (clientTlsSocket) => {
     // HTTPリクエストを受け取ってから接続しないと、クライアント側の証明書検証で切断されてもプロキシサーバーへ接続してしまう
     clientTlsSocket.once('data', dataBuffer => {
+        // 非同期処理をするときは flowing mode から paused mode に切り替えないと、クライアントから来るデータが失われる(HTTP POST Body など 分割された場合)
+        clientTlsSocket.pause();
+
         let hostname = clientTlsSocket.servername;
         if (!hostname) {
             const httpRequestArray = dataBuffer.toString().split(CRLF);
