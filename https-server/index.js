@@ -111,9 +111,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
 
         const proxyServerRequest = http.request(proxyRequestOptions);
         proxyServerRequest.on('connect', (res, proxyServerSocket) => {
-            log(`forward request to ${hostname}`);
+            log(`forward request to ${hostname}:${port}`);
             if (res.statusCode !== 200) {
-                log(`Failed to relay on proxy server: ${hostname} (${res.statusCode} ${res.statusMessage})`);
+                log(`Failed to relay on proxy server: ${hostname}${port} (${res.statusCode} ${res.statusMessage})`);
                 clientTlsSocket.end();
                 return;
             }
