@@ -34,6 +34,27 @@ const log = text => {
     console.info(`[${currentTime()}] ${text}`);
 };
 
+/**
+ *
+ * @param {string} hostHeader
+ * @param {string} servername
+ */
+const extractHostInfo = (hostHeader, servername) => {
+    if (hostHeader) {
+        return {
+            hostname: hostHeader.slice('Host:'.length).trim().replace(/:.*/, ''),
+        };
+    } else if (servername) {
+        return {
+            hostname: servername,
+        };
+    } else {
+        return {
+            hostname: null,
+        };
+    }
+};
+
 const tlsServer = tls.createServer({
     key: fs.readFileSync(`${process.env.server_key_dir}/server-key.pem`),
     cert: fs.readFileSync(`${process.env.server_key_dir}/server.crt`),
@@ -52,16 +73,17 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
         // 非同期処理をするときは flowing mode から paused mode に切り替えないと、クライアントから来るデータが失われる(HTTP POST Body など 分割された場合)
         clientTlsSocket.pause();
 
-        let hostname = clientTlsSocket.servername;
+        const httpRequestArray = dataBuffer.toString().split(CRLF);
+        const hostHeader = httpRequestArray.find(header => header.startsWith('Host:'));
+
+        const {
+            hostname,
+        } = extractHostInfo(hostHeader, clientTlsSocket.servername);
+
         if (!hostname) {
-            const httpRequestArray = dataBuffer.toString().split(CRLF);
-            const hostHeader = httpRequestArray.find(header => header.startsWith('Host:'));
-            if (!hostHeader) {
-                log('Request error: Request does not support Server Name Indication and Host header not found');
-                clientTlsSocket.end();
-                return;
-            }
-            hostname = hostHeader.slice('Host:'.length).trim().replace(/:.*/, '');
+            log('Request error: Request does not support Server Name Indication and Host header not found');
+            clientTlsSocket.end();
+            return;
         }
 
         const proxyRequestOptions = {
