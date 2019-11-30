@@ -126,6 +126,12 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 secureContext :tls.createSecureContext({
                     ca: rootCertificates,
                 }),
+                checkServerIdentity: (servername, cert) => {
+                    log(`checkServerIdentity(${servername}, cert)`);
+                    console.log(cert);
+                    if (servername === '93.184.216.34') return tls.checkServerIdentity('www.example.org', cert);
+                    return tls.checkServerIdentity(servername, cert);
+                },
             };
             const socket = tls.connect(options);
             socket.once('secureConnect', () => {
