@@ -41,16 +41,25 @@ const log = text => {
  */
 const extractHostInfo = (hostHeader, servername) => {
     if (hostHeader) {
+        const {
+            hostname,
+            port,
+        } = parseUrl(`https://${hostHeader.slice('Host:'.length).trim()}/`);
+
         return {
-            hostname: hostHeader.slice('Host:'.length).trim().replace(/:.*/, ''),
+            hostname,
+            port: port ? Number(port) : HTTPS_PORT,
         };
     } else if (servername) {
+        // ホストヘッダーがない場合、port番号不明のためデフォルトの443を使用 (port番号の特定が確実ではない)
         return {
             hostname: servername,
+            port: HTTPS_PORT,
         };
     } else {
         return {
             hostname: null,
+            port: null,
         };
     }
 };
@@ -78,6 +87,7 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
 
         const {
             hostname,
+            port,
         } = extractHostInfo(hostHeader, clientTlsSocket.servername);
 
         if (!hostname) {
@@ -90,9 +100,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             hostname: httpsProxyHost,
             port: httpsProxyPort,
             method: 'CONNECT',
-            path: `${hostname}:${HTTPS_PORT}`,
+            path: `${hostname}:${port}`,
             headers: {
-                Host: `${hostname}:${HTTPS_PORT}`,
+                Host: `${hostname}:${port}`,
             },
         };
         if (httpsProxyAuth) {
