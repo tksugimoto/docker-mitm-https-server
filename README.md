@@ -80,7 +80,7 @@
     - プロキシで割込み 
         1. プロキシサーバー設定を変更
             - 対象ドメイン ( `.env` の `TARGET_DOMAINS` に書いたドメイン) 宛の通信を `HTTP_PROXY_SERVER_BIND_IP_PORT` で指定したIP:PORTのプロキシを使うようにする
-            - 対象IP ( `.env` の `TARGET_IP` に書いたIP) 宛の通信を `HTTP_PROXY_SERVER_BIND_IP_PORT` で指定したIP:PORTのプロキシを使うようにする
+            - 対象IP ( `.env` の `TARGET_IPS` に書いたIP) 宛の通信を `HTTP_PROXY_SERVER_BIND_IP_PORT` で指定したIP:PORTのプロキシを使うようにする
             - ※ 他ドメイン・IP宛は元のプロキシ/DIRECTから変更しない
                 - [プロキシ自動設定ファイル](https://developer.mozilla.org/ja/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_(PAC)_file) など個別設定できるもの推奨
     - 名前解決で割込み （※ IPアドレス宛は対応不可）
