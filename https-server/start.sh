@@ -17,8 +17,8 @@ readonly server_cert_path=${server_key_dir}/server.crt
 readonly server_san_path=${server_key_dir}/server_san.txt
 
 
-# ", " が末尾についてしまうため、"IP:"の前は "," 無し
-echo "subjectAltName = $(printf -- "DNS:%s, " ${TARGET_DOMAINS}) IP: ${TARGET_IP:-127.0.0.1}" > ${server_san_path}
+# ", " が末尾についてしまうため、ダミードメインを最後に足す
+echo "subjectAltName = $(printf -- "DNS:%s, " ${TARGET_DOMAINS}) $(printf -- "IP:%s, " ${TARGET_IPS:-127.0.0.1}) DNS:_dummy_.example.com" > ${server_san_path}
 
 # 秘密鍵の生成
 openssl genrsa \
