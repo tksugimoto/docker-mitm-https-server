@@ -17,6 +17,7 @@ const {
 
 const CRLF = '\r\n';
 const HTTPS_PORT = 443;
+const TARGET_PORT = Number(process.env.TARGET_PORT) || HTTPS_PORT;
 
 const currentTime = () => {
     const date = new Date();
@@ -48,13 +49,13 @@ const extractHostInfo = (hostHeader, servername) => {
 
         return {
             hostname,
-            port: port ? Number(port) : HTTPS_PORT,
+            port: port ? Number(port) : TARGET_PORT,
         };
     } else if (servername) {
-        // ホストヘッダーがない場合、port番号不明のためデフォルトの443を使用 (port番号の特定が確実ではない)
+        // ホストヘッダーがない場合、port番号不明のため TARGET_PORT を使用 (port番号の特定が確実ではない)
         return {
             hostname: servername,
-            port: HTTPS_PORT,
+            port: TARGET_PORT,
         };
     } else {
         return {
