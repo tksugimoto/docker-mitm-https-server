@@ -49,7 +49,7 @@ const extractHostInfo = (hostHeader, servername) => {
 
         return {
             hostname,
-            port: port ? Number(port) : TARGET_PORT,
+            port: port ? Number(port) : HTTPS_PORT,
         };
     } else if (servername) {
         // ホストヘッダーがない場合、port番号不明のため TARGET_PORT を使用 (port番号の特定が確実ではない)
