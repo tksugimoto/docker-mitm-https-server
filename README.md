@@ -33,11 +33,16 @@
                 - 設定キー: `FORWARDING_SERVER_BIND_IP`
                 - 例: `127.9.9.9`
             - ※ 事前にhosts ファイルで書き換え対象のドメイン名をローカルのIPに名前解決されるようにしておく
-        1. `Clientアプリ` は名前解決で得られたローカルのIPの443番ポート ( `MITM HTTPS Server` ) にHTTPSリクエスト
+        1. `Clientアプリ` は名前解決で得られたローカルのIP ( `MITM HTTPS Server` ) にHTTPSリクエスト
+            - ポート番号はデフォルト `443` ( 環境変数 `TARGET_PORT` で設定可能)
 1. `Clientアプリ` - `MITM HTTPS Server` 間でTLS接続が成功
     - ※ 事前に `MITM HTTPS Server` のROOT証明書を信頼するようにしておく
 1. `MITM HTTPS Server` はプロキシが処理可能なリクエストに変換してからプロキシサーバーへリクエスト
-    - TLS Handshake の 拡張 (Server Name Indication) or Host Header から実際の接続先FQDNを取得しプロキシサーバーへCONNECTリクエスト
+    - Host ヘッダーから実際の接続先FQDN & ポート番号を取得しプロキシサーバーへCONNECTリクエスト
+        - ポート番号: デフォルト（明示されていない場合）は `443`
+    - Host ヘッダーがない場合は
+        - 接続先FQDN: TLS Handshake の 拡張 (Server Name Indication)
+        - ポート番号: 環境変数 `TARGET_PORT` ( デフォルト `443` )
 1. プロキシサーバーが代理で `外部 HTTPS Server` とTCP接続
 1. `MITM HTTPS Server` - `外部 HTTPS Server` 間でTLS接続が成功
     - ※ 事前に `MITM HTTPS Server` 内でのみ `外部 HTTPS Server` のROOT証明書を信頼するようにしておく
@@ -107,5 +112,5 @@
 - HTTPプロキシサーバー経由で `外部 HTTPS Server` にアクセスしていること
 - リクエスト中に元のリクエスト先FQDNが含まれていること
     - クライアントが Server Name Indication に対応していること or Host ヘッダーが存在すること
-- ポート番号はプロトコルのデフォルトであること
-    - HTTPS リクエスト: `443`
+- Host ヘッダーが存在しない場合、転送先ポートは `TARGET_PORT` に指定した番号のみ対応
+    - ※ Host ヘッダーが存在 & プロキシで割込みの場合は任意のポート番号に対応

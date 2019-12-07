@@ -17,6 +17,7 @@ const {
 
 const CRLF = '\r\n';
 const HTTPS_PORT = 443;
+const TARGET_PORT = Number(process.env.TARGET_PORT) || HTTPS_PORT;
 
 const currentTime = () => {
     const date = new Date();
@@ -32,6 +33,36 @@ const currentTime = () => {
 
 const log = text => {
     console.info(`[${currentTime()}] ${text}`);
+};
+
+/**
+ *
+ * @param {string} hostHeader
+ * @param {string} servername
+ */
+const extractHostInfo = (hostHeader, servername) => {
+    if (hostHeader) {
+        const {
+            hostname,
+            port,
+        } = parseUrl(`https://${hostHeader.slice('Host:'.length).trim()}/`);
+
+        return {
+            hostname,
+            port: port ? Number(port) : HTTPS_PORT,
+        };
+    } else if (servername) {
+        // ホストヘッダーがない場合、port番号不明のため TARGET_PORT を使用 (port番号の特定が確実ではない)
+        return {
+            hostname: servername,
+            port: TARGET_PORT,
+        };
+    } else {
+        return {
+            hostname: null,
+            port: null,
+        };
+    }
 };
 
 const tlsServer = tls.createServer({
@@ -52,25 +83,27 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
         // 非同期処理をするときは flowing mode から paused mode に切り替えないと、クライアントから来るデータが失われる(HTTP POST Body など 分割された場合)
         clientTlsSocket.pause();
 
-        let hostname = clientTlsSocket.servername;
+        const httpRequestArray = dataBuffer.toString().split(CRLF);
+        const hostHeader = httpRequestArray.find(header => header.startsWith('Host:'));
+
+        const {
+            hostname,
+            port,
+        } = extractHostInfo(hostHeader, clientTlsSocket.servername);
+
         if (!hostname) {
-            const httpRequestArray = dataBuffer.toString().split(CRLF);
-            const hostHeader = httpRequestArray.find(header => header.startsWith('Host:'));
-            if (!hostHeader) {
-                log('Request error: Request does not support Server Name Indication and Host header not found');
-                clientTlsSocket.end();
-                return;
-            }
-            hostname = hostHeader.slice('Host:'.length).trim().replace(/:.*/, '');
+            log('Request error: Request does not support Server Name Indication and Host header not found');
+            clientTlsSocket.end();
+            return;
         }
 
         const proxyRequestOptions = {
             hostname: httpsProxyHost,
             port: httpsProxyPort,
             method: 'CONNECT',
-            path: `${hostname}:${HTTPS_PORT}`,
+            path: `${hostname}:${port}`,
             headers: {
-                Host: `${hostname}:${HTTPS_PORT}`,
+                Host: `${hostname}:${port}`,
             },
         };
         if (httpsProxyAuth) {
@@ -79,9 +112,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
 
         const proxyServerRequest = http.request(proxyRequestOptions);
         proxyServerRequest.on('connect', (res, proxyServerSocket) => {
-            log(`forward request to ${hostname}`);
+            log(`forward request to ${hostname}:${port}`);
             if (res.statusCode !== 200) {
-                log(`Failed to relay on proxy server: ${hostname} (${res.statusCode} ${res.statusMessage})`);
+                log(`Failed to relay on proxy server: ${hostname}${port} (${res.statusCode} ${res.statusMessage})`);
                 clientTlsSocket.end();
                 return;
             }
