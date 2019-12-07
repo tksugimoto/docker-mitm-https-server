@@ -135,12 +135,12 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
 
                 console.info(dataBuffer.toString());
                 clientTlsSocket.on('data', () => {
-                    log(`client -> server (${hostname})`);
+                    log(`client -> server (${hostname}:${port})`);
                 });
                 clientTlsSocket.pipe(process.stdout);
 
                 socket.on('data', () => {
-                    log(`server -> client (${hostname})`);
+                    log(`server -> client (${hostname}:${port})`);
                 });
                 socket.pipe(process.stdout);
             });
