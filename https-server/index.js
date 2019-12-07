@@ -5,6 +5,7 @@ const http = require('http');
 const {
     parse: parseUrl,
 } = require('url');
+const stream = require('stream');
 
 assert(process.env.https_proxy, 'https_proxy env ("http://hostname:port") required.');
 
@@ -129,20 +130,26 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             };
             const socket = tls.connect(options);
             socket.once('secureConnect', () => {
-                socket.write(dataBuffer);
-                clientTlsSocket.pipe(socket);
-                socket.pipe(clientTlsSocket);
-
-                console.info(dataBuffer.toString());
-                clientTlsSocket.on('data', () => {
-                    log(`client -> server (${hostname}:${port})`);
+                const logClientRequest = new stream.Transform({
+                    transform(chunk, encoding, callback) {
+                        this.push(chunk);
+                        log(`client -> server (${hostname}:${port})`);
+                        console.info(`${chunk}`);
+                        callback();
+                    },
                 });
-                clientTlsSocket.pipe(process.stdout);
-
-                socket.on('data', () => {
-                    log(`server -> client (${hostname}:${port})`);
+                const logServerResponse = new stream.Transform({
+                    transform(chunk, encoding, callback) {
+                        this.push(chunk);
+                        log(`server -> client (${hostname}:${port})`);
+                        console.info(`${chunk}`);
+                        callback();
+                    },
                 });
-                socket.pipe(process.stdout);
+
+                logClientRequest.write(dataBuffer);
+                clientTlsSocket.pipe(logClientRequest).pipe(socket);
+                socket.pipe(logServerResponse).pipe(clientTlsSocket);
             });
             socket.on('error', err => {
                 log(`TLS Socket error: ${err.message}`);
