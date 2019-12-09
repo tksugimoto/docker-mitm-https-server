@@ -78,7 +78,13 @@ if (process.env.root_cert_file_name) {
     rootCertificates.push(rootCertificate);
 }
 
+const tlsConnectionCount = (() => {
+    let count = 0;
+    return () => count++;
+})();
+
 tlsServer.on('secureConnection', (clientTlsSocket) => {
+    const currentTlsConnectionCount = tlsConnectionCount();
     // HTTPリクエストを受け取ってから接続しないと、クライアント側の証明書検証で切断されてもプロキシサーバーへ接続してしまう
     clientTlsSocket.once('data', dataBuffer => {
         // 非同期処理をするときは flowing mode から paused mode に切り替えないと、クライアントから来るデータが失われる(HTTP POST Body など 分割された場合)
@@ -130,18 +136,26 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             };
             const socket = tls.connect(options);
             socket.once('secureConnect', () => {
+                let requestCount = 0;
+                let responseCount = 0;
+
                 const logClientRequest = new stream.Transform({
                     transform(chunk, encoding, callback) {
+                        if (chunk.toString().match(/^.*HTTP\/1.\d/)) {
+                            requestCount++;
+                            responseCount = 0;
+                        }
                         this.push(chunk);
-                        log(`client -> server (${hostname}:${port})`);
+                        log(`client -> server (${hostname}:${port}) ${currentTlsConnectionCount}-${requestCount}`);
                         console.info(`${chunk}`);
                         callback();
                     },
                 });
                 const logServerResponse = new stream.Transform({
                     transform(chunk, encoding, callback) {
+                        responseCount++;
                         this.push(chunk);
-                        log(`server -> client (${hostname}:${port})`);
+                        log(`server -> client (${hostname}:${port}) ${currentTlsConnectionCount}-${requestCount}-${responseCount}`);
                         console.info(`${chunk}`);
                         callback();
                     },
