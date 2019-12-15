@@ -140,6 +140,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             socket.on('close', hadError => {
                 log(`TLS Socket close: hadError = ${hadError}`);
             });
+            socket.on('end', () => {
+                log('TLS Socket end');
+            });
         });
         proxyServerRequest.on('error', err => {
             log(`Proxy Server Request error: ${err.message}`);
@@ -154,6 +157,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
     });
     clientTlsSocket.on('close', hadError => {
         log(`Client Socket close: hadError = ${hadError}`);
+    });
+    clientTlsSocket.on('end', () => {
+        log('Client Socket end');
     });
 });
 
