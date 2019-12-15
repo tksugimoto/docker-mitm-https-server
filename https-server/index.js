@@ -143,6 +143,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
             socket.on('end', () => {
                 log('TLS Socket end');
             });
+            socket.on('timeout', () => {
+                log('TLS Socket timeout');
+            });
         });
         proxyServerRequest.on('error', err => {
             log(`Proxy Server Request error: ${err.message}`);
@@ -160,6 +163,9 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
     });
     clientTlsSocket.on('end', () => {
         log('Client Socket end');
+    });
+    clientTlsSocket.on('timeout', () => {
+        log('Client Socket timeout');
     });
 });
 
