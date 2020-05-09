@@ -114,7 +114,7 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
         proxyServerRequest.on('connect', (res, proxyServerSocket) => {
             log(`forward request to ${hostname}:${port}`);
             if (res.statusCode !== 200) {
-                log(`Failed to relay on proxy server: ${hostname}${port} (${res.statusCode} ${res.statusMessage})`);
+                log(`Failed to relay on proxy server: ${hostname}:${port} (${res.statusCode} ${res.statusMessage})`);
                 clientTlsSocket.end();
                 return;
             }
