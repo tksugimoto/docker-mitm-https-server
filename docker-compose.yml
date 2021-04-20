@@ -41,6 +41,20 @@ services:
         max-size: "10mb"
         max-file: "3"
 
+  root-ca:
+    profiles:
+      - generate-root
+    build:
+      context: ./root-ca/
+      args:
+        http_proxy:
+        https_proxy:
+    volumes:
+      - root_key:/root/.root-key
+      - ./.generated:/root/.generated
+    environment:
+      ROOT_CERT_COMMON_NAME:
+      ROOT_CERT_LIFETIME_DAYS:
 
 volumes:
   root_key:
