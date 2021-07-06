@@ -19,6 +19,8 @@ const CRLF = '\r\n';
 const HTTPS_PORT = 443;
 const TARGET_PORT = Number(process.env.TARGET_PORT) || HTTPS_PORT;
 
+const hostnameVerificationIgnoreTargets = (process.env.HOSTNAME_VERIFICATION_IGNORE_TARGETS || '').split(' ').filter(v => v);
+
 const currentTime = () => {
     const date = new Date();
     const YYYY = date.getFullYear();
@@ -126,6 +128,10 @@ tlsServer.on('secureConnection', (clientTlsSocket) => {
                 secureContext :tls.createSecureContext({
                     ca: rootCertificates,
                 }),
+                checkServerIdentity: (servername, cert) => {
+                    if (hostnameVerificationIgnoreTargets.includes(servername)) return undefined;
+                    return tls.checkServerIdentity(servername, cert);
+                },
             };
             const socket = tls.connect(options);
             socket.once('secureConnect', () => {
